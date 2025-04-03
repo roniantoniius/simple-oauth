@@ -1,0 +1,58 @@
+OAuth2 Workflows:
+
+OAuth2 Workflows melibatkan beberapa pihak seperti Client Server, Resource Server, dan Authorization Server.
+
+- Client server menerima autentikasi dari user (kredensial). User ingin memperoleh informasi yang diproteksi
+- Resource server mengandung informasi yang diproteksi
+- Authorization server mengandung informasi autentikasi seperti Google, Github
+
+
+Code Flow:
+- Client & Resources Server = Spring Boot
+- AUthorization server = GOogle
+- Front end = Angular
+
+Intinya user akan melakukan autentikasi dan validasi id dari user tersebut. Lalu untuk mengakses informasi yang diproteksi oleh resource server, authorization server biasanya memberikan access_token untuk memberikan akses melihat data terproteksi.
+
+Dependencies:
+- web
+- dev tools
+- thymeleaf
+- spring security
+- oauth2 client
+
+
+1. Konfigurasi Spring Security
+- Pada package Config yang baru dibuat, simpan class SecurityConfig
+	- Anotasi @Configuration dan @EnableWebSecurity
+	- declare method untuk filtering http request yang permit or authenticated()
+	- proteksi dari authorize dengan oauth2Login
+
+2. Membuat controller atau endpoint halaman utama yang diproteksi. Sehingga user harus autentikasi dan bisa pergi ke halaman utama. Setelah user terautentikasi, kita dapat mengakses data tersebut dan ditampilkan.
+	- Membuat controller BerandaController
+	- memiliki endpoint Get Mapping '/' dengan input parameter Model dan objek OAuth2User dengan anotasi @AuthenticationPrincipal
+	- method akan menambah informasi user ke objek Model
+	- method mengembalikan halaman index html
+
+application.properties
+spring.application.name=simpleoauth
+
+	- bikin konfigurasi di `application.yml` untuk mengambil informasi client id dan secret key dari google, kemudian menampungnya
+	
+
+3. Get Client id Oauth2 Services from google
+	- Create OAuth client ID:
+	- Authorized JavaScript origins
+		- http://localhost:8080 (spring)
+		- http://localhost:4200 (angular)
+
+	- Authorized redirect URIs
+		- http://localhost:8080/login/oauth2/code/google
+		- http://localhost:4200
+
+	- get the client id and secret from GCP My-First-Project
+		- Client id:
+		- Secret
+
+
+[10:11] Edit Security configuration to allow public pages acess
