@@ -1,58 +1,228 @@
-OAuth2 Workflows:
+Below is a refined and more detailed version of the note in a markdown style that blends both Indonesian and English for clarity
+https://youtu.be/yp28g5AJczM?si=ZPiSqcgKt_q5c5ic
+---
 
-OAuth2 Workflows melibatkan beberapa pihak seperti Client Server, Resource Server, dan Authorization Server.
+# OAuth2 Workflows
 
-- Client server menerima autentikasi dari user (kredensial). User ingin memperoleh informasi yang diproteksi
-- Resource server mengandung informasi yang diproteksi
-- Authorization server mengandung informasi autentikasi seperti Google, Github
+OAuth2 adalah standar otorisasi yang melibatkan beberapa komponen utama dalam proses autentikasi dan pengambilan data terproteksi. Berikut adalah penjelasan menyeluruh mengenai alur kerja (workflow) OAuth2 yang melibatkan Client Server, Resource Server, dan Authorization Server.
+
+## Komponen Utama
+
+1. **Client Server**
+    
+    - Menerima autentikasi dari user menggunakan kredensial (misalnya username dan password).
+        
+    - Berperan sebagai perantara antara user dan resource yang dilindungi.
+        
+    - Dalam implementasi ini, Client Server dijalankan dengan **Spring Boot**.
+        
+2. **Resource Server**
+    
+    - Menyimpan dan menyediakan data atau informasi yang dilindungi.
+        
+    - Akses ke data ini hanya diberikan jika user memiliki token akses (access_token) yang valid.
+        
+3. **Authorization Server**
+    
+    - Menyediakan mekanisme autentikasi dan validasi user.
+        
+    - Biasanya menggunakan penyedia layanan seperti **Google** atau **Github** untuk mengelola kredensial dan otorisasi.
+        
+    - Dalam contoh ini, Authorization Server adalah **Google**.
+        
+
+## Alur Kerja (Code Flow)
+
+1. **Autentikasi User:**
+    
+    - User memberikan kredensial untuk masuk ke sistem.
+        
+    - Client Server (Spring Boot) memproses autentikasi menggunakan Spring Security dengan dukungan OAuth2.
+        
+    - Setelah berhasil, user divalidasi dan diberikan identitas melalui token.
+        
+2. **Pemberian Access Token:**
+    
+    - Authorization Server (Google) memvalidasi kredensial user dan mengeluarkan _access_token_.
+        
+    - Access token ini digunakan untuk mengakses resource yang dilindungi pada Resource Server.
+        
+3. **Mengakses Data Terproteksi:**
+    
+    - Client Server menggunakan _access_token_ untuk melakukan permintaan ke Resource Server.
+        
+    - Resource Server kemudian memberikan data terproteksi kepada client jika token tersebut valid.
+        
+
+## Teknologi dan Dependencies
+
+- **Backend Framework:** Spring Boot (Client Server & Resource Server)
+    
+- **Frontend Framework:** Angular
+    
+- **Authorization Server:** Google sebagai penyedia OAuth2
+    
+- **Dependencies yang digunakan:**
+    
+    - **Spring Security:** Untuk mengatur keamanan dan proses OAuth2
+        
+    - **OAuth2 Client:** Untuk integrasi dengan Authorization Server
+        
+    - **Thymeleaf:** Sebagai template engine untuk halaman HTML
+        
+    - **Dev Tools:** Untuk mendukung pengembangan aplikasi secara cepat
+        
+    - **Web:** Untuk pengembangan aplikasi web secara umum
+        
+
+## Konfigurasi Spring Security
+
+1. **Membuat Package dan Class Konfigurasi:**
+    
+    - Buat package baru, misalnya `config`, dan di dalamnya buat class `SecurityConfig`.
+        
+    - Tandai class dengan anotasi `@Configuration` dan `@EnableWebSecurity`.
+        
+2. **Mengatur HTTP Security:**
+    
+    - Deklarasikan method untuk mengatur filter HTTP yang menentukan endpoint mana saja yang bersifat public dan mana yang harus diotentikasi.
+        
+    - Konfigurasi otorisasi dengan `oauth2Login()` untuk menangani proses login via OAuth2.
+        
+3. **Mengizinkan Akses Publik:**
+    
+    - Edit konfigurasi keamanan untuk memungkinkan halaman tertentu diakses secara publik (misalnya halaman login atau halaman informasi dasar) tanpa autentikasi terlebih dahulu.
+        
+
+## Membuat Controller untuk Halaman Terproteksi
+
+1. **Membuat Controller Utama:**
+    
+    - Buat class controller, misalnya `BerandaController`, untuk menangani halaman utama (index) yang membutuhkan autentikasi.
+        
+2. **Endpoint Halaman Utama:**
+    
+    - Buat endpoint dengan anotasi `@GetMapping("/")` pada method di dalam controller.
+        
+    - Tambahkan parameter `Model` dan objek `OAuth2User` (dengan anotasi `@AuthenticationPrincipal`) untuk mendapatkan informasi user.
+        
+    - Di dalam method, tambahkan informasi user ke objek `Model` sehingga dapat ditampilkan di halaman.
+        
+    - Kembalikan nama view (misalnya `index.html`) yang akan dirender untuk user.
+        
+
+## Konfigurasi Properties
+
+1. **application.properties:**
+    - Menetapkan nama aplikasi sebagai `simpleoauth`.
+        
+2. **application.yml:**
+    
+    - Buat konfigurasi untuk menyimpan client ID dan secret key yang didapatkan dari Google.
+        
+    - Pastikan untuk mengatur konfigurasi OAuth2 client seperti berikut:
+        
+        ```yaml
+        spring:
+          security:
+            oauth2:
+              client:
+                registration:
+                  google:
+                    client-id: <YOUR_GOOGLE_CLIENT_ID>
+                    client-secret: <YOUR_GOOGLE_CLIENT_SECRET>
+                    scope:
+                      - openid
+                      - profile
+                      - email
+        ```
+        
+    - Konfigurasi ini akan mengatur bagaimana Spring Boot berkomunikasi dengan Google sebagai Authorization Server.
+        
+
+## Mendapatkan Client ID dari Google OAuth2 Services
+
+1. **Membuat OAuth Client ID:**
+    
+    - Masuk ke Google Cloud Platform (GCP) dan pilih proyek yang sudah ada atau buat proyek baru (misalnya _My-First-Project_).
+        
+2. **Mengatur Authorized JavaScript Origins:**
+    
+    - Tambahkan:
+        
+        - `http://localhost:8080` (untuk Spring Boot)
+            
+        - `http://localhost:4200` (untuk Angular)
+            
+3. **Mengatur Authorized Redirect URIs:**
+    
+    - Tambahkan:
+        
+        - `http://localhost:8080/login/oauth2/code/google`
+            
+        - `http://localhost:4200`
+            
+    - URL redirect ini digunakan oleh Google untuk mengembalikan token ke aplikasi setelah proses autentikasi.
+        
+4. **Mendapatkan Client ID dan Secret:**
+    
+    - Setelah konfigurasi, Google akan menyediakan **Client ID** dan **Secret**.
+        
+    - Salin kedua informasi tersebut dan masukkan ke dalam konfigurasi `application.yml` seperti yang dijelaskan di atas.
+        
+
+---
+
+## Configuring Security Public Pages
+
+Karena kita menggunakan frontend angular, jika kita pergi ke external link (fe) maka google akan redirect ke url itu, sehingga informasi cookies tidak tersimpan. Maka kita terapkan resource server di spring boot (client server) supaya informasi tersebut disimpan. Maka dri itu kita menggunakan google api untuk autentikasi user.
+
+- Pada dependencies spring boot tambahkan google oauth2 resource-server
+- Tambahin juga dependency tentang spring-webflux
+
+Lalu konfigurasi mengenai akses ke Cors untuk komunikasi:
+- Konfigurasi security baru untuk memberi izin akses ke FE dengan Cors
+- Konfigurasi bertujuan untuk menggunakan resource server (bukannya client) sehingga FE
+- Cara bangun method dengan mengembalikan objek baru WebMvcConfigurer dengan fungsionalitas: 
+	- method addCorsMapping dengan input param CorsRegistry
+	- parameter tersebut memanggil method addMapping menuju "/**" semua halaman
+	- lalu parameter juga memanggil method allowedMethods (POST, GET, etc)
+	- dan method allowedOrigins("http://localhost/4200")
 
 
-Code Flow:
-- Client & Resources Server = Spring Boot
-- AUthorization server = GOogle
-- Front end = Angular
+#### How to configure spring security to work with Google? by using Custom Introspector
+- untuk membaca informasi user setelah mereka terautentikasi
+1. Bikin konfigurasi web client untuk memanggil Google API dan mendapat user informasi 
+2. Konfigurasi spring security di SecurityConfig untuk memanggil si user info
+	- pada method securityFilterChain objek HttpSecurity tambah method .cors dengan input Customizer withDefaults
+	- tambah method untuk error handling ketika user gagal login (kembali ke homepage)
+	- tambah method untuk sessionmanagement supaya Stateless
+	- dan perbaiki proses login menjadi oauth2Resourceserver
 
-Intinya user akan melakukan autentikasi dan validasi id dari user tersebut. Lalu untuk mengakses informasi yang diproteksi oleh resource server, authorization server biasanya memberikan access_token untuk memberikan akses melihat data terproteksi.
+3. Membuat custom introspector dengan method OpaqueTokenIntrospector
+	- Dari FE kita kirim opaque token menuju authorization header
+	- kemudian kita terima inputnya (token) sebagai input dari method introspect() untuk memanggil google api melalui web client uri
+	- Kita menyimpan informasi dari user yang sudah melakukan authorization di UserInfo pada package dtos. Dtos ini menyimpan informasi user yang disediakan oleh Google
+4. to be honest i still doesnt know exactly why this custom introspector crucial
 
-Dependencies:
-- web
-- dev tools
-- thymeleaf
-- spring security
-- oauth2 client
+Jadi aplikasi yang kita bangun sekarang bisa berperan sebagai Resource Server dan menerima data username dari Google Api melalui WebClient dengan akses introspect uri
 
+---
 
-1. Konfigurasi Spring Security
-- Pada package Config yang baru dibuat, simpan class SecurityConfig
-	- Anotasi @Configuration dan @EnableWebSecurity
-	- declare method untuk filtering http request yang permit or authenticated()
-	- proteksi dari authorize dengan oauth2Login
+## Implement Client Server using Google API
+Jadi ketika kita menuju endpoint yang butuh authenticated(). Sebaiknya kita membuat endpoint (Controller) khusus untuk proses login tersebut dengan menerima input yaitu clientId dan clientSecret.
 
-2. Membuat controller atau endpoint halaman utama yang diproteksi. Sehingga user harus autentikasi dan bisa pergi ke halaman utama. Setelah user terautentikasi, kita dapat mengakses data tersebut dan ditampilkan.
-	- Membuat controller BerandaController
-	- memiliki endpoint Get Mapping '/' dengan input parameter Model dan objek OAuth2User dengan anotasi @AuthenticationPrincipal
-	- method akan menambah informasi user ke objek Model
-	- method mengembalikan halaman index html
+1. Bikin Controller untuk proses autentikasi
+	- Mengambil data clientId dan clientSecret untuk digunakan pada method auth() yang mengembalikan link dimana user bisa melihat login form dari google.
+	- memanggil objek GoogleAuthorizationCodeRequestUrl dengan input clientId, url dari frontend, dan list data yang diambil dari akun Google tersebut
+2. Obtain access token dari Google
+	- ketika google melakukan auth() di url frontend. Access Token ini digunakan untuk mengambil data dari UserDto
+	- Maka kita perlu membuat method yang mengembalikan access token (TokenDto) yaitu method callback()
+	- Untuk mengambil token kita perlu mendapatnya melalui method GoogleAuthorizationCodeTokenRequest
+	- Token pada method ini akan dikirim kembali ke FE dan FE menggunakannya di Authorization header
+3. Perbaiki konfigurasi controller konten yaitu public dan private Controller
 
-application.properties
-spring.application.name=simpleoauth
+---
+[32:13] Configuring Frontend
 
-	- bikin konfigurasi di `application.yml` untuk mengambil informasi client id dan secret key dari google, kemudian menampungnya
-	
-
-3. Get Client id Oauth2 Services from google
-	- Create OAuth client ID:
-	- Authorized JavaScript origins
-		- http://localhost:8080 (spring)
-		- http://localhost:4200 (angular)
-
-	- Authorized redirect URIs
-		- http://localhost:8080/login/oauth2/code/google
-		- http://localhost:4200
-
-	- get the client id and secret from GCP My-First-Project
-		- Client id:
-		- Secret
-
-
-[10:11] Edit Security configuration to allow public pages acess
+## Frontend Creation

@@ -1,9 +1,16 @@
 <head>
-	<title> Spring Security - Latihan OAuth2 Login</title>
+	<title>Spring Security - Latihan OAuth2 Login</title>
 </head>
 <body>
 	<h1>OAuth2 Login with Spring security</h1>
-	<div>
-		Kamu berhasil login <span style="font-weight:bold" th:text="${userName}"></span>
-	</div>
+	<h2>Daftar Endpoint</h2>
+	<h3>Private</h3>
+	<ul>
+		<li><a th:href="@{/pesans}">Private</a> endpoint: pengguna wajib melakukan autentikasi dengan google</li>
+	</ul>
+	
+	<h3>Public</h3>
+	<ul>
+		<li><a th:href="@{/public/pesans}">Public</a> endpoint: pengguna tidak wajib melakukan autentikasi dengan google</li>
+	</ul>
 </body>
