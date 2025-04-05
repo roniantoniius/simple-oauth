@@ -10,7 +10,7 @@ import com.roniantonius.simpleoauth.dtos.PesanDto;
 @RestController
 public class PrivateController {
 	
-	@GetMapping(path = "/pesans")
+	@GetMapping(path = "/messages")
 	public ResponseEntity<PesanDto> privatePesans(
 			@AuthenticationPrincipal(expression = "name") String name
 	) {

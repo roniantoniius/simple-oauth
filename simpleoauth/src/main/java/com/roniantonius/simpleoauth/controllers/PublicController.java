@@ -11,7 +11,7 @@ import com.roniantonius.simpleoauth.dtos.PesanDto;
 @RestController
 public class PublicController {
 	
-	@GetMapping(path = "/public/pesans")
+	@GetMapping(path = "/public/messages")
 	public ResponseEntity<PesanDto> publicPesans() {
 		return ResponseEntity.ok(new PesanDto("public konten"));
 	}
